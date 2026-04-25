@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .admin-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--sp-6);
+        }
+        @media (max-width: 768px) {
+            .admin-cards { grid-template-columns: 1fr; }
+        }
+        .admin-card {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sp-4);
+            padding: var(--sp-6);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .admin-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform var(--duration-base) var(--ease-default);
+        }
+        .admin-card:hover .admin-icon-box {
+            transform: scale(1.1);
+        }
+        .icon-blue { background: #dbeafe; color: #2563eb; }
+        .icon-green { background: #dcfce7; color: #16a34a; }
+        .icon-purple { background: #f3e8ff; color: #9333ea; }
+        .admin-card-title {
+            font-size: var(--text-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--sp-1);
+            transition: color var(--duration-fast);
+        }
+        .admin-card-desc {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+        .admin-card:hover .admin-card-title.blue { color: #2563eb; }
+        .admin-card:hover .admin-card-title.green { color: #16a34a; }
+        .admin-card:hover .admin-card-title.purple { color: #9333ea; }
+        .nav-link.exit-btn { border: 1px solid var(--border-default); padding: var(--sp-1) var(--sp-3); border-radius: var(--radius-full); margin-left: var(--sp-4); }
+        .nav-link.exit-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/admin/dashboard.html" class="nav-brand">E-SHOP <span style="color: var(--text-tertiary); font-size: var(--text-lg); font-weight: 400; margin-left: 8px;">/ Admin</span></a>
+            <div class="nav-links">
+                <a href="/admin/dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="/admin/returns.html" class="nav-link">Returns</a>
+                <a href="/admin/bulk-upload.html" class="nav-link">Bulk Upload</a>
+                <a href="/admin/promotions.html" class="nav-link">Promotions</a>
+                <a href="/" class="nav-link exit-btn">Exit Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <div style="margin-bottom: var(--sp-8);">
+            <h1 class="section-title">Admin Dashboard</h1>
+            <p class="section-subtitle">Welcome back. Manage your platform settings and operations.</p>
+        </div>
+        
+        <div class="admin-cards animate-slide">
+            <a href="/admin/returns.html" class="glass-card admin-card">
+                <div class="admin-icon-box icon-blue">
+                    <i data-lucide="corner-down-left"></i>
+                </div>
+                <div>
+                    <h3 class="admin-card-title blue">Return Requests</h3>
+                    <p class="admin-card-desc">Review and process customer return and refund requests.</p>
+                </div>
+            </a>
+            
+            <a href="/admin/bulk-upload.html" class="glass-card admin-card">
+                <div class="admin-icon-box icon-green">
+                    <i data-lucide="upload-cloud"></i>
+                </div>
+                <div>
+                    <h3 class="admin-card-title green">Bulk Upload</h3>
+                    <p class="admin-card-desc">Import multiple products at once via CSV upload.</p>
+                </div>
+            </a>
+            
+            <a href="/admin/promotions.html" class="glass-card admin-card">
+                <div class="admin-icon-box icon-purple">
+                    <i data-lucide="tag"></i>
+                </div>
+                <div>
+                    <h3 class="admin-card-title purple">Promotions</h3>
+                    <p class="admin-card-desc">Create and manage discounts and promotional campaigns.</p>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

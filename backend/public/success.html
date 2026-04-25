@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="max-w-xl w-full">
+        <div class="card p-10 text-center shadow-xl border-gray-100 relative overflow-hidden">
+            <!-- Background decorative blob -->
+            <div class="absolute -top-20 -right-20 w-48 h-48 bg-success-50 rounded-full blur-3xl opacity-50"></div>
+            
+            <div class="w-24 h-24 bg-success-100 text-success-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale relative z-10">
+                <i data-lucide="check-circle" class="w-12 h-12"></i>
+            </div>
+            
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2 relative z-10">Thank you!</h1>
+            <p class="text-xl text-gray-600 mb-8 relative z-10">Your order has been placed successfully.</p>
+            
+            <div class="bg-gray-50 rounded-2xl p-6 text-left mb-8 border border-gray-100 relative z-10">
+                <p class="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Order Number</p>
+                <p class="text-lg font-mono font-bold text-gray-900" id="orderId">Loading...</p>
+                
+                <div class="divider my-4"></div>
+                
+                <!-- Timeline -->
+                <div class="space-y-4">
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-4 h-4 rounded-full bg-success-500 ring-4 ring-success-50"></div>
+                            <div class="w-0.5 h-full bg-gray-200 mt-1"></div>
+                        </div>
+                        <div class="pb-2">
+                            <p class="font-bold text-gray-900">Order Confirmed</p>
+                            <p class="text-sm text-gray-500">We have received your order.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-4 h-4 rounded-full bg-gray-300 ring-4 ring-gray-50"></div>
+                            <div class="w-0.5 h-full bg-gray-200 mt-1"></div>
+                        </div>
+                        <div class="pb-2">
+                            <p class="font-bold text-gray-500">Processing</p>
+                            <p class="text-sm text-gray-400">Preparing your items for shipment.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-4 h-4 rounded-full bg-gray-300 ring-4 ring-gray-50"></div>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-500">Shipped</p>
+                            <p class="text-sm text-gray-400">On its way to you.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+                <a href="/orders.html" class="btn btn-secondary">View Order Status</a>
+                <a href="/" class="btn btn-primary shadow-glow">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/utils.js"></script>
+    <script>
+        lucide.createIcons();
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('id');
+        
+        if (orderId) {
+            document.getElementById('orderId').innerText = orderId;
+            
+            // Trigger confetti
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                }));
+                confetti(Object.assign({}, defaults, { particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                }));
+            }, 250);
+        } else {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

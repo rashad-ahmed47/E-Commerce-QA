@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">E-SHOP</a>
+            <div class="nav-links">
+                <a href="/cart.html" class="nav-link relative">
+                    <i data-lucide="shopping-cart"></i>
+                    <span id="cartBadge" class="cart-badge hidden">0</span>
+                </a>
+                <div id="authLinks"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <div id="loadingState" class="grid grid-2 gap-8">
+            <div class="skeleton" style="aspect-ratio: 1; border-radius: var(--radius-2xl);"></div>
+            <div class="flex-col gap-4">
+                <div class="skeleton" style="height: 40px; width: 80%;"></div>
+                <div class="skeleton" style="height: 30px; width: 30%;"></div>
+                <div class="skeleton" style="height: 100px; width: 100%;"></div>
+            </div>
+        </div>
+
+        <div id="productContent" class="hidden">
+            <!-- Breadcrumbs -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="/" class="hover:text-primary-600 transition-colors">Home</a>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                <span id="bcCategory" class="hover:text-primary-600 cursor-pointer"></span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                <span id="bcName" class="text-gray-900 font-medium line-clamp-1"></span>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Gallery -->
+                <div>
+                    <div class="zoom-container bg-white border border-gray-100 shadow-sm mb-4" id="mainImageContainer">
+                        <img id="mainImage" src="" alt="Product" class="w-full h-auto object-contain" style="aspect-ratio: 1;">
+                        <div id="lens" class="zoom-lens"></div>
+                    </div>
+                    <div id="thumbnailContainer" class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="flex flex-col">
+                    <div class="mb-6">
+                        <div id="saleBadge" class="mb-3 hidden">
+                            <span class="badge badge-danger text-sm px-3 py-1 animate-pulse">SALE ACTIVE</span>
+                        </div>
+                        <h1 id="productName" class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-tight"></h1>
+                        <div class="flex items-center gap-4 text-sm text-gray-500">
+                            <div class="flex items-center gap-1 text-yellow-400" id="ratingContainer"></div>
+                            <span id="numReviews"></span>
+                            <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                            <span>SKU: <span id="productSku" class="font-mono text-gray-700"></span></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="flex items-end gap-3 mb-2" id="priceContainer">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div id="stockStatus" class="font-medium flex items-center gap-2 text-sm mt-2"></div>
+                    </div>
+
+                    <!-- Variants Section (If applicable) -->
+                    <div id="variantsSection" class="hidden mb-8 border-t border-b border-gray-100 py-6">
+                        <h3 class="font-bold text-gray-900 mb-3">Available Options</h3>
+                        <div class="flex gap-2 flex-wrap" id="variantButtons"></div>
+                    </div>
+
+                    <div class="mb-8 flex-1">
+                        <h3 class="font-bold text-gray-900 text-lg mb-3">Description</h3>
+                        <p id="productDescription" class="text-gray-600 leading-relaxed"></p>
+                    </div>
+
+                    <div class="flex gap-4 mt-auto">
+                        <div class="flex items-center border-2 border-gray-200 rounded-xl bg-white overflow-hidden w-32 h-14">
+                            <button onclick="decrementQty()" class="px-4 h-full hover:bg-gray-100 transition-colors text-gray-600 font-bold text-lg">-</button>
+                            <input type="number" id="qty" value="1" min="1" class="w-full text-center border-none focus:ring-0 font-bold text-lg text-gray-900 p-0" readonly>
+                            <button onclick="incrementQty()" class="px-4 h-full hover:bg-gray-100 transition-colors text-gray-600 font-bold text-lg">+</button>
+                        </div>
+                        <button id="addToCartBtn" class="btn btn-primary flex-1 text-lg shadow-xl" style="height: 3.5rem;">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="mt-20 border-t border-gray-200 pt-16">
+                <h2 class="text-2xl font-bold mb-8">Customer Reviews</h2>
+                
+                <div class="grid md:grid-cols-[300px_1fr] gap-12">
+                    <div>
+                        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 text-center">
+                            <div id="avgRatingDisplay" class="text-5xl font-extrabold text-gray-900 mb-2">0.0</div>
+                            <div class="flex justify-center gap-1 text-yellow-400 mb-2" id="avgStarsDisplay"></div>
+                            <p class="text-gray-500 text-sm mb-6" id="totalReviewsDisplay">0 reviews</p>
+                            
+                            <div id="reviewFormSection" class="hidden text-left border-t border-gray-200 pt-6 mt-6">
+                                <h4 class="font-bold mb-3">Write a review</h4>
+                                <form id="reviewForm" class="space-y-4">
+                                    <div>
+                                        <select id="rating" class="form-input w-full" required>
+                                            <option value="">Select Rating</option>
+                                            <option value="5">5 - Excellent</option>
+                                            <option value="4">4 - Very Good</option>
+                                            <option value="3">3 - Good</option>
+                                            <option value="2">2 - Fair</option>
+                                            <option value="1">1 - Poor</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <textarea id="comment" class="form-input w-full" rows="3" placeholder="Share your thoughts..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-secondary btn-block">Submit Review</button>
+                                </form>
+                            </div>
+                            <div id="loginToReview" class="text-sm text-gray-500">
+                                Please <a href="/login.html" class="text-primary-600 font-bold">login</a> to write a review.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="reviewsList" class="space-y-6">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Sticky Mobile Cart Bar -->
+    <div class="sticky-cart shadow-2xl">
+        <div>
+            <div class="font-bold text-gray-900 line-clamp-1" id="mobileTitle"></div>
+            <div class="text-primary-600 font-bold" id="mobilePrice"></div>
+        </div>
+        <button id="mobileAddToCart" class="btn btn-primary px-8 shadow-lg">Add to Cart</button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-20">
+        <div class="container text-center">
+            &copy; 2026 E-SHOP. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/product.js"></script>
+</body>
+</html>

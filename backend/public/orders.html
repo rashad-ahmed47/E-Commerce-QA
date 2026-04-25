@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">E-SHOP</a>
+            <div class="nav-links">
+                <div id="authLinks"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content max-w-5xl flex-1">
+        <div class="flex items-center gap-4 mb-8">
+            <a href="/account.html" class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-500 hover:text-primary-600 transition-colors">
+                <i data-lucide="arrow-left"></i>
+            </a>
+            <h1 class="text-3xl font-extrabold text-gray-900">Order History</h1>
+        </div>
+
+        <div id="ordersList" class="space-y-6">
+            <!-- Loading Skeletons -->
+            <div class="card p-6">
+                <div class="skeleton" style="height:20px; width:40%; mb:1rem"></div>
+                <div class="skeleton" style="height:100px; width:100%"></div>
+            </div>
+            <div class="card p-6">
+                <div class="skeleton" style="height:20px; width:40%; mb:1rem"></div>
+                <div class="skeleton" style="height:100px; width:100%"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isAuthenticated()) {
+                window.location.href = '/login.html?redirect=orders.html';
+                return;
+            }
+            Auth.initAuthUI();
+            
+            try {
+                const orders = await Utils.fetchApi('/api/orders/myorders');
+                const container = document.getElementById('ordersList');
+                
+                if (orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
+                            <i data-lucide="package-open" class="mx-auto h-16 w-16 text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">No orders yet</h3>
+                            <p class="text-gray-500 mb-6">Looks like you haven't made any purchases.</p>
+                            <a href="/" class="btn btn-primary">Start Shopping</a>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                container.innerHTML = orders.map(order => {
+                    const statusClass = order.status === 'Delivered' ? 'badge-success' : 
+                                        order.status === 'Processing' ? 'badge-warning' : 
+                                        order.status === 'Cancelled' ? 'badge-danger' : 'badge-info';
+                    
+                    const canReturn = order.status === 'Delivered' && 
+                                    (Date.now() - new Date(order.deliveredAt).getTime()) < 30 * 24 * 60 * 60 * 1000;
+
+                    return `
+                        <div class="card overflow-hidden">
+                            <div class="bg-gray-50 p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
+                                <div class="flex gap-8">
+                                    <div>
+                                        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Order Placed</p>
+                                        <p class="text-sm font-medium text-gray-900">${Utils.formatDate(order.createdAt)}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Total</p>
+                                        <p class="text-sm font-medium text-gray-900">${Utils.formatCurrency(order.totalPrice)}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 text-right">
+                                    <div>
+                                        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Order #</p>
+                                        <p class="text-sm font-mono text-gray-900">${order._id}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6">
+                                <div class="flex justify-between items-center mb-6">
+                                    <div class="flex items-center gap-3">
+                                        <span class="badge ${statusClass} px-3 py-1 text-sm">${order.status}</span>
+                                        ${order.refundStatus !== 'None' ? `<span class="badge badge-primary px-3 py-1 text-sm">Refund: ${order.refundStatus}</span>` : ''}
+                                    </div>
+                                    ${canReturn ? `<a href="/request-return.html?orderId=${order._id}" class="btn btn-secondary btn-sm">Request Return</a>` : ''}
+                                </div>
+
+                                <div class="space-y-4">
+                                    ${order.orderItems.map(item => `
+                                        <div class="flex gap-4 items-center">
+                                            <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                                                <img src="${item.product && item.product.images ? item.product.images[0] : 'https://via.placeholder.com/150'}" class="w-full h-full object-cover">
+                                            </div>
+                                            <div class="flex-1">
+                                                <a href="/product.html?id=${item.product}" class="font-bold text-gray-900 hover:text-primary-600 transition-colors line-clamp-1">${item.name}</a>
+                                                <p class="text-sm text-gray-500 mt-1">Qty: ${item.qty} &times; ${Utils.formatCurrency(item.price)}</p>
+                                            </div>
+                                            <div class="font-bold text-gray-900">
+                                                ${Utils.formatCurrency(item.price * item.qty)}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                lucide.createIcons();
+            } catch (error) {
+                Toast.error('Failed to load orders');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50">
+    <nav class="nav bg-white shadow-sm border-b border-gray-200">
+        <div class="nav-inner justify-center">
+            <a href="/" class="nav-brand flex items-center gap-2">
+                <i data-lucide="shield-check" class="text-primary-600"></i>
+                Secure Checkout
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Steps Indicator -->
+        <div class="steps">
+            <div class="step active" id="step1">
+                <div class="step-num">1</div>
+                <span class="sm-hidden md-show">Shipping</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step" id="step2">
+                <div class="step-num">2</div>
+                <span class="sm-hidden md-show">Payment</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step" id="step3">
+                <div class="step-num">3</div>
+                <span class="sm-hidden md-show">Review</span>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-[1fr_350px] gap-8">
+            <!-- Main Flow Area -->
+            <div>
+                <!-- Form Step 1: Shipping -->
+                <div id="formStep1" class="card p-8 shadow-md">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="map-pin" class="text-primary-600"></i> Shipping Address
+                    </h2>
+                    <form id="shippingForm" class="space-y-4">
+                        <div class="form-group">
+                            <label class="form-label">Full Address</label>
+                            <input type="text" id="address" required class="form-input" placeholder="123 Main St, Apt 4B">
+                        </div>
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" id="city" required class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" id="postalCode" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <select id="country" required class="form-input">
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="AU">Australia</option>
+                            </select>
+                        </div>
+                        <div class="pt-4 flex justify-between items-center">
+                            <a href="/cart.html" class="text-gray-500 hover:text-gray-900 font-medium flex items-center gap-1">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Cart
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">Continue to Payment</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Form Step 2: Payment -->
+                <div id="formStep2" class="card p-8 shadow-md hidden">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="credit-card" class="text-primary-600"></i> Payment Details
+                    </h2>
+                    <form id="paymentForm" class="space-y-4">
+                        <div class="form-group">
+                            <label class="form-label">Cardholder Name</label>
+                            <input type="text" required class="form-input" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Card Number</label>
+                            <div class="relative">
+                                <input type="text" id="cardNumber" required class="form-input w-full pl-10" placeholder="0000 0000 0000 0000" maxlength="19">
+                                <i data-lucide="credit-card" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Expiry Date</label>
+                                <input type="text" id="cardExpiry" required class="form-input" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CVC</label>
+                                <input type="text" required class="form-input" placeholder="123" maxlength="4">
+                            </div>
+                        </div>
+                        
+                        <!-- Simulated Payment Gateway Notice -->
+                        <div class="bg-blue-50 p-4 rounded-lg mt-6 border border-blue-100 flex gap-3">
+                            <i data-lucide="info" class="text-blue-500 flex-shrink-0"></i>
+                            <p class="text-sm text-blue-800">This is a simulated payment gateway. Any card number will work for testing purposes.</p>
+                        </div>
+
+                        <div class="pt-6 flex justify-between items-center">
+                            <button type="button" class="text-gray-500 hover:text-gray-900 font-medium flex items-center gap-1" onclick="Checkout.goToStep(1)">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg">Review Order</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Form Step 3: Review -->
+                <div id="formStep3" class="card p-8 shadow-md hidden">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="clipboard-check" class="text-primary-600"></i> Order Review
+                    </h2>
+                    
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
+                        <div class="grid grid-2 gap-4">
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Shipping To</h4>
+                                <p id="reviewAddress" class="text-sm font-medium"></p>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Payment Method</h4>
+                                <p class="text-sm font-medium flex items-center gap-1"><i data-lucide="credit-card" class="w-4 h-4 text-gray-400"></i> Credit Card ending in <span id="reviewCardEnd"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="font-bold mb-4">Items</h4>
+                    <div id="reviewItems" class="space-y-4 mb-8">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="pt-6 flex justify-between items-center border-t border-gray-100">
+                        <button type="button" class="text-gray-500 hover:text-gray-900 font-medium flex items-center gap-1" onclick="Checkout.goToStep(2)">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                        </button>
+                        <button id="placeOrderBtn" class="btn btn-primary btn-lg shadow-xl px-8 bg-gradient-to-r from-green-500 to-emerald-600 border-none">
+                            <i data-lucide="lock" class="w-4 h-4 mr-1"></i> Place Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary Sidebar -->
+            <div>
+                <div class="card p-6 sticky top-6">
+                    <h3 class="font-bold text-lg mb-4">Order Summary</h3>
+                    
+                    <div class="space-y-3 text-sm text-gray-600 mb-4 pb-4 border-b border-gray-100">
+                        <div class="flex justify-between">
+                            <span>Items (<span id="summaryCount">0</span>)</span>
+                            <span id="summaryItemsTotal">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Shipping</span>
+                            <span class="text-success-600 font-bold">Free</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tax (0%)</span>
+                            <span>$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-end mb-6">
+                        <span class="font-bold text-gray-900 text-lg">Order Total</span>
+                        <span id="summaryTotal" class="font-extrabold text-2xl text-primary-600">$0.00</span>
+                    </div>
+
+                    <!-- Items Preview -->
+                    <div class="space-y-2 max-h-64 overflow-y-auto pr-2" id="summaryItemsPreview">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/checkout.js"></script>
+</body>
+</html>
