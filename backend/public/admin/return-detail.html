@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Return - Admin</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .nav-link.exit-btn { border: 1px solid var(--border-default); padding: var(--sp-1) var(--sp-3); border-radius: var(--radius-full); margin-left: var(--sp-4); }
+        .nav-link.exit-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+        
+        .header-layout { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-8); }
+        .back-btn { width: 48px; height: 48px; background: var(--bg-card); border-radius: 50%; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: color var(--duration-fast); }
+        .back-btn:hover { color: var(--primary-600); }
+        .header-title-box { flex: 1; }
+        .header-title { font-size: var(--text-3xl); font-weight: 800; color: var(--text-primary); margin: 0; }
+        .header-subtitle { color: var(--text-secondary); margin-top: 4px; font-size: var(--text-sm); }
+        .badge-box { margin-left: auto; }
+        
+        .evidence-box { margin-bottom: var(--sp-8); }
+        .evidence-title { font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--sp-4); color: var(--text-primary); border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--sp-2); }
+        .evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-6); }
+        @media (max-width: 768px) { .evidence-grid { grid-template-columns: 1fr; } }
+        .evidence-img { width: 100%; height: 192px; object-fit: cover; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); transition: box-shadow var(--duration-fast); cursor: pointer; }
+        .evidence-img:hover { box-shadow: var(--shadow-md); }
+        
+        .desc-box { background: var(--gray-50); padding: var(--sp-6); border-radius: var(--radius-xl); border: 1px solid var(--border-default); margin-bottom: var(--sp-8); }
+        .desc-title { font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: var(--sp-3); letter-spacing: 0.05em; }
+        .desc-text { color: var(--text-primary); font-size: var(--text-lg); line-height: 1.6; font-style: italic; }
+        
+        .decision-box { border-top: 1px solid var(--border-default); padding-top: var(--sp-8); }
+        .decision-title { font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--sp-6); color: var(--text-primary); }
+        .decision-actions { display: flex; gap: var(--sp-4); margin-top: var(--sp-6); }
+        @media (max-width: 768px) { .decision-actions { flex-direction: column; } }
+        .btn-approve { flex: 1; padding: var(--sp-4); font-size: var(--text-lg); }
+        .btn-reject { flex: 1; padding: var(--sp-4); font-size: var(--text-lg); }
+    </style>
+</head>
+<body style="background: var(--gray-50);">
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/admin/dashboard.html" class="nav-brand">E-SHOP <span style="color: var(--text-tertiary); font-size: var(--text-lg); font-weight: 400; margin-left: 8px;">/ Admin</span></a>
+            <div class="nav-links">
+                <a href="/admin/dashboard.html" class="nav-link">Dashboard</a>
+                <a href="/admin/returns.html" class="nav-link active">Returns</a>
+                <a href="/admin/bulk-upload.html" class="nav-link">Bulk Upload</a>
+                <a href="/admin/promotions.html" class="nav-link">Promotions</a>
+                <a href="/" class="nav-link exit-btn">Exit Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content mt-8" style="max-width: 896px;">
+        <div class="header-layout">
+            <a href="/admin/returns.html" class="back-btn">
+                <i data-lucide="arrow-left"></i>
+            </a>
+            <div class="header-title-box">
+                <h1 class="header-title" id="title">Return Request Detail</h1>
+                <p class="header-subtitle" id="subtitle">Loading details...</p>
+            </div>
+            <div id="statusBadge" class="badge-box"></div>
+        </div>
+
+        <div id="content" class="glass-card animate-slide" style="padding: var(--sp-8);">
+            <!-- Evidence Images -->
+            <div class="evidence-box">
+                <h2 class="evidence-title">Evidence Photos</h2>
+                <div class="evidence-grid" id="imageGrid">
+                    <!-- Populated by JS -->
+                    <div class="spinner" style="border-top-color: var(--primary-500);"></div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="desc-box">
+                <h2 class="desc-title">User Description</h2>
+                <p id="descText" class="desc-text"></p>
+            </div>
+
+            <!-- Decision Form -->
+            <div class="decision-box">
+                <h2 class="decision-title">Final Verdict</h2>
+                <form id="decisionForm">
+                    <div class="form-group">
+                        <label class="form-label">Admin Comment (Communicated to user)</label>
+                        <textarea id="adminComment" rows="4" class="form-input w-full" placeholder="Reason for approval/denial..."></textarea>
+                    </div>
+                    <div class="decision-actions">
+                        <button type="button" onclick="updateStatus('Approved')" class="btn btn-success btn-approve">
+                            <i data-lucide="check-circle"></i> Approve & Process Refund
+                        </button>
+                        <button type="button" onclick="updateStatus('Rejected')" class="btn btn-danger btn-reject">
+                            <i data-lucide="x-circle"></i> Reject Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        lucide.createIcons();
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+
+        async function loadData() {
+            try {
+                const res = await fetch(`/api/returns`, { headers: Auth.getHeaders() });
+                const allReturns = await res.json();
+                const ret = allReturns.find(r => r._id === id);
+
+                if (!ret) {
+                    Toast.error('Return request not found');
+                    return;
+                }
+
+                document.getElementById('subtitle').innerText = `Submitted by ${ret.user.name} on ${new Date(ret.createdAt).toLocaleDateString()}`;
+                document.getElementById('descText').innerText = ret.description;
+                document.getElementById('adminComment').value = ret.adminComment || '';
+                
+                const grid = document.getElementById('imageGrid');
+                if (!ret.images || ret.images.length === 0) {
+                    grid.innerHTML = '<p style="color: var(--text-secondary); font-style: italic; padding: var(--sp-4) 0;">No photos provided.</p>';
+                    grid.style.gridTemplateColumns = '1fr';
+                } else {
+                    grid.innerHTML = ret.images.map(img => `<img src="${img}" class="evidence-img">`).join('');
+                }
+                
+                document.getElementById('statusBadge').innerHTML = `<span class="badge ${getStatusClass(ret.status)}" style="padding: 6px 16px; font-size: var(--text-sm); box-shadow: var(--shadow-sm);">${ret.status}</span>`;
+            } catch (err) {
+                Toast.error('Failed to load return details');
+            }
+        }
+
+        async function updateStatus(status) {
+            const comment = document.getElementById('adminComment').value;
+            try {
+                const res = await fetch(`/api/returns/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        ...Auth.getHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status, adminComment: comment })
+                });
+                
+                if (res.ok) {
+                    Toast.success(`Request marked as ${status}`);
+                    setTimeout(() => window.location.href = '/admin/returns.html', 1500);
+                } else {
+                    const data = await res.json();
+                    throw new Error(data.message || 'Update failed');
+                }
+            } catch (err) {
+                Toast.error(err.message);
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Pending': return 'badge-warning';
+                case 'Approved': return 'badge-success';
+                case 'Rejected': return 'badge-danger';
+                case 'In Review': return 'badge-info';
+                default: return 'badge-neutral';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

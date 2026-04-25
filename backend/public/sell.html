@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Product - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">E-SHOP</a>
+            <div class="nav-links">
+                <a href="/my-listings.html" class="nav-link">My Listings</a>
+                <div id="authLinks"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content max-w-4xl flex-1">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Create New Listing</h1>
+        <p class="text-gray-500 mb-8">Fill out the details below to list your product on the marketplace.</p>
+
+        <form id="sellForm" class="card p-8 shadow-sm space-y-8">
+            <!-- Basic Info -->
+            <div>
+                <h3 class="text-lg font-bold border-b border-gray-100 pb-2 mb-4">Basic Information</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="form-group md:col-span-2">
+                        <label class="form-label">Product Title <span class="text-danger-500">*</span></label>
+                        <input type="text" id="name" required class="form-input" placeholder="e.g. Wireless Noise Cancelling Headphones">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SKU <span class="text-danger-500">*</span></label>
+                        <input type="text" id="sku" required class="form-input" placeholder="Unique identifier (e.g. HEAD-001)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category <span class="text-danger-500">*</span></label>
+                        <select id="category" required class="form-input">
+                            <option value="">Select Category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Home">Home</option>
+                            <option value="Beauty">Beauty</option>
+                            <option value="Sports">Sports</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price ($) <span class="text-danger-500">*</span></label>
+                        <input type="number" id="price" required step="0.01" min="0" class="form-input" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Initial Stock Quantity <span class="text-danger-500">*</span></label>
+                        <input type="number" id="stock" required min="1" class="form-input" placeholder="10">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Variants (New Feature) -->
+            <div>
+                <h3 class="text-lg font-bold border-b border-gray-100 pb-2 mb-4">Variants & Attributes (Optional)</h3>
+                <p class="text-sm text-gray-500 mb-4">If this product has specific attributes like Size or Color, define them here.</p>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="form-label text-xs">Size</label>
+                        <input type="text" id="attrSize" class="form-input" placeholder="e.g. M, L, XL">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label text-xs">Color</label>
+                        <input type="text" id="attrColor" class="form-input" placeholder="e.g. Red, Blue">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <h3 class="text-lg font-bold border-b border-gray-100 pb-2 mb-4">Product Details</h3>
+                <div class="form-group">
+                    <label class="form-label">Description <span class="text-danger-500">*</span></label>
+                    <textarea id="description" required rows="6" class="form-input" placeholder="Describe the product's features, material, condition..."></textarea>
+                </div>
+            </div>
+
+            <!-- Images (Drag & Drop) -->
+            <div>
+                <h3 class="text-lg font-bold border-b border-gray-100 pb-2 mb-4">Media</h3>
+                <div class="border-2 border-dashed border-gray-300 rounded-2xl p-10 text-center hover:bg-gray-50 transition-colors cursor-pointer" id="dropZone">
+                    <input type="file" id="images" multiple accept="image/*" class="hidden">
+                    <i data-lucide="image-plus" class="mx-auto h-12 w-12 text-gray-400 mb-2"></i>
+                    <p class="font-bold text-gray-700">Click to upload or drag & drop</p>
+                    <p class="text-sm text-gray-500 mt-1">SVG, PNG, JPG or WebP (max. 5 images)</p>
+                </div>
+                <!-- Preview Area -->
+                <div id="imagePreview" class="grid grid-cols-5 gap-4 mt-4 hidden"></div>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-6 border-t border-gray-100">
+                <a href="/" class="btn btn-secondary">Cancel</a>
+                <button type="submit" id="submitBtn" class="btn btn-primary px-8">Create Listing</button>
+            </div>
+        </form>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.isAuthenticated()) {
+                window.location.href = '/login.html?redirect=sell.html';
+                return;
+            }
+            Auth.initAuthUI();
+            lucide.createIcons();
+
+            // Image Upload Preview Logic
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('images');
+            const previewContainer = document.getElementById('imagePreview');
+            let selectedFiles = [];
+
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-primary-500', 'bg-primary-50');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+                if (e.dataTransfer.files.length) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            function handleFiles(files) {
+                const newFiles = Array.from(files).slice(0, 5 - selectedFiles.length);
+                selectedFiles = [...selectedFiles, ...newFiles];
+                
+                if (selectedFiles.length > 0) {
+                    previewContainer.classList.remove('hidden');
+                    renderPreviews();
+                }
+            }
+
+            function renderPreviews() {
+                previewContainer.innerHTML = '';
+                selectedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const div = document.createElement('div');
+                        div.className = 'relative aspect-square rounded-xl overflow-hidden border border-gray-200 group';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-full object-cover">
+                            <button type="button" class="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity" onclick="removeFile(${index})">
+                                <i data-lucide="x" class="w-3 h-3"></i>
+                            </button>
+                        `;
+                        previewContainer.appendChild(div);
+                        if (index === selectedFiles.length - 1) lucide.createIcons();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            window.removeFile = (index) => {
+                selectedFiles.splice(index, 1);
+                renderPreviews();
+                if (selectedFiles.length === 0) previewContainer.classList.add('hidden');
+            };
+
+            // Form Submit
+            document.getElementById('sellForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('submitBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<div class="spinner border-white mr-2"></div> Creating...';
+
+                const formData = new FormData();
+                formData.append('name', document.getElementById('name').value);
+                formData.append('sku', document.getElementById('sku').value);
+                formData.append('category', document.getElementById('category').value);
+                formData.append('price', document.getElementById('price').value);
+                formData.append('stockQuantity', document.getElementById('stock').value);
+                formData.append('description', document.getElementById('description').value);
+
+                // Build attributes
+                const size = document.getElementById('attrSize').value;
+                const color = document.getElementById('attrColor').value;
+                const attrs = {};
+                if (size) attrs.size = size;
+                if (color) attrs.color = color;
+                if (Object.keys(attrs).length > 0) {
+                    formData.append('attributes', JSON.stringify(attrs));
+                }
+
+                selectedFiles.forEach(file => {
+                    formData.append('images', file);
+                });
+
+                try {
+                    const res = await fetch('/api/products', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${Auth.getToken()}`
+                        },
+                        body: formData
+                    });
+                    
+                    if (!res.ok) {
+                        const data = await res.json();
+                        throw new Error(data.message);
+                    }
+                    
+                    Toast.success('Product listed successfully!');
+                    setTimeout(() => window.location.href = '/my-listings.html', 1500);
+                } catch (error) {
+                    Toast.error(error.message);
+                    btn.disabled = false;
+                    btn.innerText = 'Create Listing';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

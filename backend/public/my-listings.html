@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Listings - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">E-SHOP</a>
+            <div class="nav-links">
+                <a href="/sell.html" class="btn btn-primary btn-sm"><i data-lucide="plus"></i> Create Listing</a>
+                <div id="authLinks"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content flex-1 max-w-6xl">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-8">My Product Listings</h1>
+
+        <div class="card overflow-hidden">
+            <div class="table-wrap">
+                <table class="table min-w-full">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listingsTable">
+                        <tr><td colspan="6" class="text-center py-8"><div class="spinner mx-auto border-primary-500"></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isAuthenticated()) {
+                window.location.href = '/login.html';
+                return;
+            }
+            Auth.initAuthUI();
+            
+            try {
+                const products = await Utils.fetchApi('/api/products/myproducts');
+                const tbody = document.getElementById('listingsTable');
+                
+                if (products.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center py-12">
+                                <i data-lucide="box" class="mx-auto h-12 w-12 text-gray-300 mb-3"></i>
+                                <p class="text-gray-500 font-medium">You haven't listed any products yet.</p>
+                                <a href="/sell.html" class="btn btn-primary mt-4">Create your first listing</a>
+                            </td>
+                        </tr>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                tbody.innerHTML = products.map(p => {
+                    const statusBadge = p.stockQuantity > p.safetyThreshold 
+                        ? `<span class="badge badge-success">In Stock</span>`
+                        : (p.stockQuantity > 0 
+                            ? `<span class="badge badge-warning">Low Stock</span>`
+                            : `<span class="badge badge-danger">Out of Stock</span>`);
+
+                    const imageHtml = p.images && p.images.length > 0 
+                        ? `<img src="${p.images[0]}" class="w-12 h-12 rounded object-cover">`
+                        : `<div class="w-12 h-12 rounded bg-gray-100 flex items-center justify-center text-gray-400"><i data-lucide="image"></i></div>`;
+
+                    return `
+                        <tr>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    ${imageHtml}
+                                    <div>
+                                        <a href="/product.html?id=${p._id}" class="font-bold text-gray-900 hover:text-primary-600 line-clamp-1">${p.name}</a>
+                                        <span class="text-xs text-gray-500">${p.category}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-mono text-xs text-gray-500">${p.sku}</td>
+                            <td class="font-bold text-gray-900">${Utils.formatCurrency(p.price)}</td>
+                            <td>${p.stockQuantity}</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <div class="flex gap-2">
+                                    <a href="/edit-product.html?id=${p._id}" class="btn btn-ghost text-blue-600 hover:bg-blue-50" title="Edit">
+                                        <i data-lucide="edit-2"></i>
+                                    </a>
+                                    <button onclick="deleteProduct('${p._id}')" class="btn btn-ghost text-red-600 hover:bg-red-50" title="Delete">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                lucide.createIcons();
+            } catch (error) {
+                Toast.error('Failed to load listings');
+            }
+        });
+
+        async function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this listing?')) {
+                try {
+                    await Utils.fetchApi(`/api/products/${id}`, { method: 'DELETE' });
+                    Toast.success('Product deleted');
+                    setTimeout(() => window.location.reload(), 1000);
+                } catch (error) {
+                    Toast.error(error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

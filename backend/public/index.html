@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-SHOP | Premium Marketplace</title>
+    <!-- Custom Design System -->
+    <link rel="stylesheet" href="/css/design-system.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">E-SHOP</a>
+            
+            <div class="search-box sm-hidden">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search for products, brands and more...">
+                <div id="searchDropdown" class="search-dropdown hidden"></div>
+            </div>
+
+            <div class="nav-links">
+                <a href="/sell.html" class="btn btn-ghost sm-hidden">
+                    <i data-lucide="tag"></i> Sell
+                </a>
+                <a href="/cart.html" class="nav-link relative">
+                    <i data-lucide="shopping-cart"></i>
+                    <span id="cartBadge" class="cart-badge hidden">0</span>
+                </a>
+                <div id="authLinks" class="flex gap-2">
+                    <a href="/login.html" class="btn btn-secondary btn-sm">Login</a>
+                    <a href="/register.html" class="btn btn-primary btn-sm">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Search (visible only on small screens) -->
+    <div class="md-hidden px-4 py-3 bg-white border-b border-gray-200">
+        <div class="search-box" style="max-width: 100%;">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="mobileSearchInput" class="search-input" placeholder="Search...">
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="page-hero relative overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-10"></div>
+        <div class="container relative z-10">
+            <h1 class="text-5xl font-extrabold mb-4 animate-slide">Discover the Extraordinary</h1>
+            <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto animate-fade" style="animation-delay: 0.1s;">Shop the latest trends, electronics, and daily essentials with our premium marketplace.</p>
+            <button class="btn btn-primary btn-lg animate-fade" style="animation-delay: 0.2s;" onclick="document.getElementById('productsSection').scrollIntoView()">
+                Shop Now <i data-lucide="arrow-right"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="container main-content flex gap-8" id="productsSection">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar-w sm-hidden">
+            <div class="filter-panel">
+                <h3 class="filter-title">Filters</h3>
+                
+                <div class="filter-section">
+                    <h4 class="filter-section-title">Categories</h4>
+                    <div id="categoryFilters" class="flex-col gap-2">
+                        <!-- Populated by JS -->
+                        <div class="skeleton" style="height: 20px; width: 100%; margin-bottom: 8px;"></div>
+                        <div class="skeleton" style="height: 20px; width: 80%; margin-bottom: 8px;"></div>
+                        <div class="skeleton" style="height: 20px; width: 90%;"></div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4 class="filter-section-title">Price Range</h4>
+                    <div class="flex gap-2 items-center">
+                        <input type="number" id="minPrice" class="form-input" placeholder="Min" style="width: 80px; padding: 8px;">
+                        <span class="text-gray-400">-</span>
+                        <input type="number" id="maxPrice" class="form-input" placeholder="Max" style="width: 80px; padding: 8px;">
+                    </div>
+                    <button id="applyPriceBtn" class="btn btn-secondary btn-sm btn-block mt-3">Apply</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Product Grid -->
+        <div class="flex-1">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">Trending Products</h2>
+                    <p class="text-gray-500 text-sm mt-1" id="resultsCount">Loading...</p>
+                </div>
+                <select id="sortSelect" class="form-input" style="width: 180px;">
+                    <option value="-createdAt">Newest Arrivals</option>
+                    <option value="price">Price: Low to High</option>
+                    <option value="-price">Price: High to Low</option>
+                    <option value="-rating">Top Rated</option>
+                </select>
+            </div>
+
+            <div id="productGrid" class="grid grid-3">
+                <!-- Skeleton Loaders -->
+                <div class="card"><div class="skeleton card-img"></div><div class="card-body"><div class="skeleton" style="height:20px; width:80%; margin-bottom:8px"></div><div class="skeleton" style="height:24px; width:40%"></div></div></div>
+                <div class="card"><div class="skeleton card-img"></div><div class="card-body"><div class="skeleton" style="height:20px; width:80%; margin-bottom:8px"></div><div class="skeleton" style="height:24px; width:40%"></div></div></div>
+                <div class="card"><div class="skeleton card-img"></div><div class="card-body"><div class="skeleton" style="height:20px; width:80%; margin-bottom:8px"></div><div class="skeleton" style="height:24px; width:40%"></div></div></div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="flex justify-center gap-2 mt-12"></div>
+            
+            <!-- Recently Viewed (Injected via JS) -->
+            <div id="recentlyViewedContainer"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">E-SHOP</div>
+                    <p class="mb-4">The premier marketplace for premium products. Shop with confidence.</p>
+                </div>
+                <div class="footer-links">
+                    <h4 class="footer-title">Shop</h4>
+                    <a href="#">Electronics</a>
+                    <a href="#">Clothing</a>
+                    <a href="#">Home & Garden</a>
+                </div>
+                <div class="footer-links">
+                    <h4 class="footer-title">Account</h4>
+                    <a href="/login.html">Login</a>
+                    <a href="/register.html">Register</a>
+                    <a href="/orders.html">My Orders</a>
+                </div>
+                <div class="footer-links">
+                    <h4 class="footer-title">Support</h4>
+                    <a href="/returns.html">Returns</a>
+                    <a href="#">Contact Us</a>
+                    <a href="#">FAQ</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 E-SHOP. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

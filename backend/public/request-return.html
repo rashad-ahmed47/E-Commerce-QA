@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Return - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">E-SHOP</a>
+            <div class="nav-links">
+                <div id="authLinks"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content max-w-3xl flex-1">
+        <div class="flex items-center gap-4 mb-8">
+            <a href="/orders.html" class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-500 hover:text-primary-600 transition-colors">
+                <i data-lucide="arrow-left"></i>
+            </a>
+            <h1 class="text-3xl font-extrabold text-gray-900">Request a Return</h1>
+        </div>
+
+        <form id="returnForm" class="card p-8 shadow-sm space-y-8">
+            <!-- Order Context -->
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Returning items from order</p>
+                    <p class="font-mono font-bold text-gray-900" id="orderIdDisplay">Loading...</p>
+                </div>
+                <i data-lucide="package" class="w-8 h-8 text-gray-300"></i>
+            </div>
+
+            <!-- Reason -->
+            <div class="form-group">
+                <label class="form-label">Why are you returning this? <span class="text-danger-500">*</span></label>
+                <select id="reason" required class="form-input">
+                    <option value="">Select a reason</option>
+                    <option value="Damaged/Defective">Item is damaged or defective</option>
+                    <option value="Wrong Item">Received the wrong item</option>
+                    <option value="Not as Described">Item doesn't match description</option>
+                    <option value="Changed Mind">Changed my mind</option>
+                    <option value="Better Price">Found a better price elsewhere</option>
+                </select>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label class="form-label">Detailed Description <span class="text-danger-500">*</span></label>
+                <p class="text-xs text-gray-500 mb-2">Please provide specific details about the issue.</p>
+                <textarea id="description" required rows="4" class="form-input" placeholder="Explain what went wrong..."></textarea>
+            </div>
+
+            <!-- Evidence Images -->
+            <div>
+                <label class="form-label flex justify-between items-center mb-2">
+                    <span>Evidence Photos (Recommended)</span>
+                    <span class="text-xs text-gray-400 font-normal">Max 3 images</span>
+                </label>
+                <div class="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer" id="dropZone">
+                    <input type="file" id="images" multiple accept="image/*" class="hidden">
+                    <i data-lucide="camera" class="mx-auto h-8 w-8 text-gray-400 mb-2"></i>
+                    <p class="font-bold text-gray-700 text-sm">Click or drag photos here</p>
+                </div>
+                <div id="imagePreview" class="grid grid-cols-3 gap-4 mt-4 hidden"></div>
+            </div>
+
+            <div class="pt-6 border-t border-gray-100 flex justify-end gap-4">
+                <a href="/orders.html" class="btn btn-secondary">Cancel</a>
+                <button type="submit" id="submitBtn" class="btn btn-primary px-8">Submit Request</button>
+            </div>
+        </form>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/returns.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Returns.initRequestForm();
+        });
+    </script>
+</body>
+</html>
