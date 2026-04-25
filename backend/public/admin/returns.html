@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returns Queue - Admin</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .nav-link.exit-btn { border: 1px solid var(--border-default); padding: var(--sp-1) var(--sp-3); border-radius: var(--radius-full); margin-left: var(--sp-4); }
+        .nav-link.exit-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+        
+        .header-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-8); }
+        .user-info { display: flex; flex-direction: column; }
+        .user-info-name { font-size: var(--text-sm); font-weight: 700; color: var(--text-primary); }
+        .user-info-email { font-size: var(--text-sm); color: var(--text-secondary); }
+        .action-link { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: var(--primary-600); font-size: var(--text-sm); transition: color var(--duration-fast); }
+        .action-link:hover { color: var(--primary-800); }
+        .mono-text { font-family: monospace; font-size: var(--text-sm); color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/admin/dashboard.html" class="nav-brand">E-SHOP <span style="color: var(--text-tertiary); font-size: var(--text-lg); font-weight: 400; margin-left: 8px;">/ Admin</span></a>
+            <div class="nav-links">
+                <a href="/admin/dashboard.html" class="nav-link">Dashboard</a>
+                <a href="/admin/returns.html" class="nav-link active">Returns</a>
+                <a href="/admin/bulk-upload.html" class="nav-link">Bulk Upload</a>
+                <a href="/admin/promotions.html" class="nav-link">Promotions</a>
+                <a href="/" class="nav-link exit-btn">Exit Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content mt-8">
+        <div class="header-action">
+            <h1 class="section-title" style="margin: 0;">Return Request Queue</h1>
+        </div>
+        
+        <div class="table-wrap animate-slide">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Order</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="returnsTable">
+                    <tr><td colspan="6" style="text-align: center; padding: var(--sp-12);"><div class="spinner" style="margin: 0 auto; border-top-color: var(--primary-500);"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/returns', {
+                    headers: Auth.getHeaders()
+                });
+                
+                if (!res.ok) throw new Error('Failed to fetch returns');
+                const data = await res.json();
+                
+                const table = document.getElementById('returnsTable');
+                if (data.length === 0) {
+                    table.innerHTML = '<tr><td colspan="6" class="empty-state" style="padding: var(--sp-8); color: var(--text-secondary);">No return requests found.</td></tr>';
+                    return;
+                }
+
+                table.innerHTML = data.map(ret => `
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <span class="user-info-name">${ret.user.name}</span>
+                                <span class="user-info-email">${ret.user.email}</span>
+                            </div>
+                        </td>
+                        <td><span class="mono-text">${ret.order._id}</span></td>
+                        <td><span style="font-weight: 500;">${ret.reason}</span></td>
+                        <td>
+                            <span class="badge ${getStatusClass(ret.status)}">${ret.status}</span>
+                        </td>
+                        <td><span style="font-size: var(--text-sm); color: var(--text-secondary);">${new Date(ret.createdAt).toLocaleDateString()}</span></td>
+                        <td style="text-align: right;">
+                            <a href="/admin/return-detail.html?id=${ret._id}" class="action-link">
+                                Review <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `).join('');
+                lucide.createIcons();
+            } catch (err) {
+                Toast.error('Could not load returns');
+                document.getElementById('returnsTable').innerHTML = '<tr><td colspan="6" class="empty-state" style="padding: var(--sp-8); color: var(--danger-500);">Error loading data.</td></tr>';
+            }
+        });
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Pending': return 'badge-warning';
+                case 'Approved': return 'badge-success';
+                case 'Rejected': return 'badge-danger';
+                case 'In Review': return 'badge-info';
+                default: return 'badge-neutral';
+            }
+        }
+    </script>
+</body>
+</html>

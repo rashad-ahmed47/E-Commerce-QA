@@ -1,0 +1,10 @@
+/* ========== E-SHOP DESIGN SYSTEM ========== */
+
+/*
+  This is the main entry point for the custom vanilla CSS design system.
+  It replaces Tailwind CSS and implements a premium glassmorphic theme.
+*/
+
+@import 'variables.css';
+@import 'base.css';
+@import 'components.css';

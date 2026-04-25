@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-0"></div>
+
+    <div class="w-full max-w-md relative z-10">
+        <div class="text-center mb-8 animate-fade">
+            <a href="/" class="text-4xl font-extrabold text-white tracking-tight">E-SHOP</a>
+            <p class="text-white text-opacity-80 mt-2">Welcome back to the premium marketplace</p>
+        </div>
+
+        <div class="glass-card p-8 animate-slide">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Sign in to your account</h2>
+            
+            <form id="loginForm" class="space-y-5">
+                <div class="form-group">
+                    <label class="form-label text-gray-700">Email Address</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input type="email" id="email" required class="form-input w-full pl-10" placeholder="you@example.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="flex justify-between items-center">
+                        <label class="form-label text-gray-700">Password</label>
+                        <a href="/forgot-password.html" class="text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors">Forgot password?</a>
+                    </div>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input type="password" id="password" required class="form-input w-full pl-10 pr-10" placeholder="••••••••">
+                        <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i data-lucide="eye" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="loginBtn" class="btn btn-primary btn-block btn-lg mt-6 shadow-glow">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="mt-8 text-center text-sm text-gray-600">
+                Don't have an account? 
+                <a href="/register.html" class="font-bold text-primary-600 hover:text-primary-700 transition-colors">Sign up for free</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        lucide.createIcons();
+
+        document.getElementById('togglePassword').addEventListener('click', (e) => {
+            const input = document.getElementById('password');
+            const icon = e.currentTarget.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner border-white mr-2"></div> Signing in...';
+
+            try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                await Auth.login(email, password);
+                
+                const params = new URLSearchParams(window.location.search);
+                window.location.href = params.get('redirect') ? `/${params.get('redirect')}` : '/';
+            } catch (error) {
+                Toast.error(error.message || 'Invalid credentials');
+                btn.disabled = false;
+                btn.innerText = 'Sign In';
+            }
+        });
+    </script>
+</body>
+</html>

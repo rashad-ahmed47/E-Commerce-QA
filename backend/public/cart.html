@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - E-SHOP</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">E-SHOP</a>
+            <div class="nav-links">
+                <a href="/cart.html" class="nav-link active relative">
+                    <i data-lucide="shopping-cart"></i>
+                    <span id="cartBadge" class="cart-badge hidden">0</span>
+                </a>
+                <div id="authLinks"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content max-w-5xl">
+        <h1 class="text-3xl font-extrabold mb-8">Shopping Cart</h1>
+
+        <div class="grid md:grid-cols-[1fr_350px] gap-8">
+            <!-- Cart Items -->
+            <div class="card p-6">
+                <div id="cartItems" class="flex-col gap-6">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div>
+                <div class="card p-6 sticky" style="top: calc(var(--nav-h) + var(--sp-6))">
+                    <h2 class="text-xl font-bold mb-6">Order Summary</h2>
+                    
+                    <div class="flex justify-between mb-4 text-gray-600">
+                        <span>Subtotal (<span id="totalItems">0</span> items)</span>
+                        <span id="subtotal" class="font-bold text-gray-900">$0.00</span>
+                    </div>
+                    
+                    <div class="flex justify-between mb-4 text-gray-600">
+                        <span>Shipping</span>
+                        <span class="text-success-600 font-bold">Free</span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="flex justify-between mb-6">
+                        <span class="font-bold text-lg">Total</span>
+                        <span id="totalPrice" class="font-bold text-2xl text-primary-600">$0.00</span>
+                    </div>
+
+                    <button id="checkoutBtn" class="btn btn-primary btn-block btn-lg" onclick="window.location.href='/checkout.html'">
+                        Proceed to Checkout
+                    </button>
+                    
+                    <p class="text-xs text-center text-gray-500 mt-4 flex items-center justify-center gap-1">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-success-600"></i> Secure encryption on checkout
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.initAuthUI();
+            Cart.updateBadge();
+            renderCart();
+            
+            // Listen for global cart updates (e.g. from multiple tabs)
+            window.addEventListener('cartUpdated', renderCart);
+        });
+
+        function renderCart() {
+            const items = Cart.getItems();
+            const container = document.getElementById('cartItems');
+            
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="shopping-cart"></i>
+                        <h3 class="text-xl font-bold mb-2">Your cart is empty</h3>
+                        <p class="text-gray-500 mb-6">Looks like you haven't added anything yet.</p>
+                        <a href="/" class="btn btn-primary">Start Shopping</a>
+                    </div>
+                `;
+                document.getElementById('checkoutBtn').disabled = true;
+                updateSummary(0, 0);
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            document.getElementById('checkoutBtn').disabled = false;
+
+            container.innerHTML = items.map(item => `
+                <div class="flex flex-col sm:flex-row gap-6 p-4 bg-gray-50 rounded-xl border border-gray-100 animate-fade" id="item-${item.product}">
+                    <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover rounded-lg shadow-sm">
+                    
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-900 line-clamp-1"><a href="/product.html?id=${item.product}">${item.name}</a></h3>
+                                <p class="text-primary-600 font-bold mt-1">${Utils.formatCurrency(item.price)}</p>
+                            </div>
+                            <button onclick="removeItem('${item.product}')" class="text-gray-400 hover:text-danger-500 transition-colors p-2 rounded-lg hover:bg-red-50" title="Remove">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 mt-4">
+                            <div class="flex items-center border border-gray-200 rounded-lg bg-white overflow-hidden">
+                                <button onclick="updateQty('${item.product}', ${item.qty - 1})" class="px-3 py-1 hover:bg-gray-100 transition-colors text-gray-600">-</button>
+                                <span class="px-4 py-1 font-medium border-x border-gray-200">${item.qty}</span>
+                                <button onclick="updateQty('${item.product}', ${item.qty + 1})" class="px-3 py-1 hover:bg-gray-100 transition-colors text-gray-600">+</button>
+                            </div>
+                            <div class="text-sm text-gray-500 font-medium ml-auto">
+                                Subtotal: <span class="text-gray-900">${Utils.formatCurrency(item.price * item.qty)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateSummary(items);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function updateQty(id, newQty) {
+            if (newQty < 1) return;
+            Cart.updateQty(id, newQty);
+        }
+
+        function removeItem(id) {
+            const el = document.getElementById(`item-${id}`);
+            if (el) {
+                // Add fade out animation
+                el.style.animation = 'fadeIn 0.3s ease reverse forwards';
+                setTimeout(() => Cart.remove(id), 300);
+            } else {
+                Cart.remove(id);
+            }
+        }
+
+        function updateSummary(items) {
+            if (items === 0) {
+                document.getElementById('totalItems').innerText = '0';
+                document.getElementById('subtotal').innerText = '$0.00';
+                document.getElementById('totalPrice').innerText = '$0.00';
+                return;
+            }
+            
+            const totalQty = items.reduce((acc, i) => acc + i.qty, 0);
+            const totalCost = items.reduce((acc, i) => acc + (i.price * i.qty), 0);
+
+            document.getElementById('totalItems').innerText = totalQty;
+            document.getElementById('subtotal').innerText = Utils.formatCurrency(totalCost);
+            document.getElementById('totalPrice').innerText = Utils.formatCurrency(totalCost);
+        }
+    </script>
+</body>
+</html>
