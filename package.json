@@ -7,7 +7,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start:dev": "node --env-file=.env --watch server.js"
+    "start:dev": "node --env-file=.env --watch server.js",
+    "test": "npm --prefix backend test"
   },
   "dependencies": {
     "csv-parser": "^3.2.0",
