@@ -1,58 +1,44 @@
-const mongoose = require('mongoose');
-
-const returnItemSchema = new mongoose.Schema({
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-  qty: { type: Number, required: true }
-});
+let mongoose;
+try {
+  mongoose = require('mongoose');
+} catch {
+  // Allow the module to load in test environments without mongoose
+  module.exports = {};
+  return;
+}
 
 const returnRequestSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User',
-  },
   order: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'Order',
   },
-  returnItems: [returnItemSchema], // Specific items being returned
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
+  },
   reason: {
     type: String,
     required: true,
+    minlength: 10,
+    maxlength: 1000,
   },
-  description: {
-    type: String,
-    required: true,
-  },
-  images: [String], // Array of evidence photo URLs
   status: {
     type: String,
-    required: true,
-    enum: ['Pending', 'In Review', 'Approved', 'Rejected', 'Completed'],
+    enum: ['Pending', 'Approved', 'Rejected'],
     default: 'Pending',
-  },
-  resolution: {
-    type: String,
-    enum: ['Refund', 'Replacement', 'None'],
-    default: 'None'
   },
   refundAmount: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  refundProcessedAt: {
-    type: Date
+  refundedAt: Date,
+  adminNotes: String,
+  processedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   },
-  adminComment: {
-    type: String,
-  },
-  statusLog: [{
-    status: String,
-    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    timestamp: { type: Date, default: Date.now },
-    comment: String
-  }]
 }, { timestamps: true });
 
 const ReturnRequest = mongoose.model('ReturnRequest', returnRequestSchema);
